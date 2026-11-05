@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">La Sacerdotisa</string>
+    <string name="explicar">Explicar</string>
+    <string name="accesibilidad_resumen">Burbuja que explica los errores mientras escribes.</string>
+    <string name="accesibilidad_descripcion">Mientras escribes en cualquier app (WhatsApp, Notas, Messenger…), La Sacerdotisa revisa el texto del campo donde estás escribiendo y, si encuentra un error, muestra una burbuja con qué cambiar y por qué.\n\nNecesita este permiso para leer ese texto. Nunca lee campos de contraseña y no guarda lo que escribes. Si activas LanguageTool en la app, el texto se envía a languagetool.org para revisarlo.</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo eventos de texto y de cambio de pantalla; lee el campo donde escribes para revisarlo. -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeViewTextChanged|typeViewFocused|typeViewTextSelectionChanged|typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accesibilidad_descripcion"
+    android:isAccessibilityTool="false"
+    android:notificationTimeout="200"
+    android:settingsActivity="com.davidsant7e.sacerdotisa.ui.MainActivity"
+    android:summary="@string/accesibilidad_resumen" />

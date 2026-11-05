@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "categorias": {
+    "CASING": {
+      "titulo": "Mayúsculas",
+      "porque": "En español la mayúscula inicial se usa al empezar un escrito, después de punto, de signo de cierre de interrogación o exclamación que termina la oración, y en nombres propios. Las palabras comunes van en minúscula."
+    },
+    "TYPOS": {
+      "titulo": "Ortografía",
+      "porque": "La palabra no aparece en el diccionario tal como está escrita. Suele ser una letra cambiada, de más o de menos."
+    },
+    "GRAMMAR": {
+      "titulo": "Gramática",
+      "porque": "Las palabras no concuerdan entre sí (género, número, persona o tiempo) o la construcción de la frase no es correcta."
+    },
+    "PUNCTUATION": {
+      "titulo": "Puntuación",
+      "porque": "Las comas, puntos y signos ordenan la lectura. En español los signos de interrogación y exclamación se abren y se cierran (¿…? ¡…!), y no se pone coma entre el sujeto y el verbo."
+    },
+    "TYPOGRAPHY": {
+      "titulo": "Tipografía",
+      "porque": "Detalle de escritura: espacios, comillas, guiones o signos que se ven mejor de otra forma."
+    },
+    "STYLE": {
+      "titulo": "Estilo",
+      "porque": "No es un error, pero hay una forma más clara, corta o natural de decirlo."
+    },
+    "REDUNDANCY": {
+      "titulo": "Redundancia",
+      "porque": "Se dice dos veces lo mismo (por ejemplo «subir arriba»). Basta con una de las dos partes."
+    },
+    "CONFUSED_WORDS": {
+      "titulo": "Palabras que se confunden",
+      "porque": "Hay dos palabras que suenan igual o parecido pero se escriben distinto y significan cosas distintas. Aquí corresponde la otra."
+    },
+    "SEMANTICS": {
+      "titulo": "Sentido",
+      "porque": "La frase puede tener un problema de lógica o de significado (por ejemplo, una fecha que no coincide con el día de la semana)."
+    },
+    "COLLOCATIONS": {
+      "titulo": "Combinación de palabras",
+      "porque": "Esas palabras no suelen ir juntas; lo habitual es usar otra combinación."
+    },
+    "COMPOUNDING": {
+      "titulo": "Palabras juntas o separadas",
+      "porque": "Algunas expresiones se escriben en una sola palabra y otras separadas, aunque se pronuncien igual."
+    },
+    "DIACRITICS": {
+      "titulo": "Tildes",
+      "porque": "La tilde marca la sílaba que suena más fuerte o distingue palabras que se escriben igual."
+    },
+    "MISC": {
+      "titulo": "Otros",
+      "porque": "LanguageTool detectó algo que conviene revisar."
+    }
+  },
+  "tiposProblema": {
+    "misspelling": "TYPOS",
+    "grammar": "GRAMMAR",
+    "typographical": "TYPOGRAPHY",
+    "style": "STYLE",
+    "duplication": "REDUNDANCY",
+    "whitespace": "TYPOGRAPHY",
+    "inconsistency": "STYLE",
+    "register": "STYLE",
+    "uncategorized": "MISC"
+  },
+  "diacriticas": {
+    "tu": { "sin": "«tu» sin tilde es posesivo: tu casa, tu idea.", "con": "«tú» con tilde es el pronombre personal: tú sabes, eres tú." },
+    "el": { "sin": "«el» sin tilde es artículo: el perro, el día.", "con": "«él» con tilde es el pronombre personal: él vino, para él." },
+    "mi": { "sin": "«mi» sin tilde es posesivo (mi casa) o la nota musical.", "con": "«mí» con tilde es pronombre y va después de preposición: para mí, a mí." },
+    "si": { "sin": "«si» sin tilde es condicional (si llueve…) o la nota musical.", "con": "«sí» con tilde es afirmación (sí, quiero) o pronombre (lo dijo para sí)." },
+    "te": { "sin": "«te» sin tilde es pronombre: te quiero, te llamo.", "con": "«té» con tilde es la bebida: una taza de té." },
+    "de": { "sin": "«de» sin tilde es preposición: casa de madera.", "con": "«dé» con tilde es el verbo dar: que me dé la mano." },
+    "se": { "sin": "«se» sin tilde es pronombre: se fue, se lo dije.", "con": "«sé» con tilde es de los verbos saber o ser: no sé, sé bueno." },
+    "mas": { "sin": "«mas» sin tilde significa «pero» (uso literario): lo intentó, mas no pudo.", "con": "«más» con tilde indica cantidad o comparación: quiero más, es más alto." },
+    "aun": { "sin": "«aun» sin tilde significa «incluso»: aun así, aun cuando llueva.", "con": "«aún» con tilde significa «todavía»: aún no llega." },
+    "que": { "sin": "«que» sin tilde une frases: dijo que vendría, el libro que leí.", "con": "«qué» con tilde pregunta o exclama: ¿qué quieres?, ¡qué bonito!, no sé qué hacer." },
+    "como": { "sin": "«como» sin tilde compara o explica: es como tú, como llovía, me quedé.", "con": "«cómo» con tilde pregunta por el modo: ¿cómo estás?, no sé cómo llegar." },
+    "cuando": { "sin": "«cuando» sin tilde indica tiempo sin preguntar: llámame cuando llegues.", "con": "«cuándo» con tilde pregunta: ¿cuándo vienes?, dime cuándo." },
+    "donde": { "sin": "«donde» sin tilde indica lugar sin preguntar: la casa donde vivo.", "con": "«dónde» con tilde pregunta: ¿dónde estás?, no sé dónde lo dejé." },
+    "quien": { "sin": "«quien» sin tilde se refiere a una persona ya nombrada: fue ella quien llamó.", "con": "«quién» con tilde pregunta: ¿quién es?, no sé quién vino." },
+    "cual": { "sin": "«cual» sin tilde relaciona: el motivo por el cual vine.", "con": "«cuál» con tilde pregunta: ¿cuál prefieres?" },
+    "cuanto": { "sin": "«cuanto» sin tilde relaciona: cuanto antes, mejor.", "con": "«cuánto» con tilde pregunta o exclama: ¿cuánto cuesta?, ¡cuánto tiempo!" },
+    "esta": { "sin": "«esta» sin tilde es demostrativo: esta casa, esta noche.", "con": "«está» con tilde es el verbo estar: la casa está lejos, él está bien. Es aguda terminada en vocal, por eso lleva tilde." },
+    "este": { "sin": "«este» sin tilde es demostrativo (este libro) o el punto cardinal.", "con": "«esté» con tilde es el verbo estar: espero que esté bien." },
+    "porque": { "sin": "«porque» junto y sin tilde explica la causa: no vine porque llovía.", "con": "«porqué» junto y con tilde es un sustantivo, «el motivo»: no entiendo el porqué." },
+    "solo": { "sin": "«solo» se escribe sin tilde, tanto si significa «solamente» como «sin compañía». La RAE recomienda no tildarlo.", "con": "«sólo» con tilde ya no se recomienda: hoy se escribe «solo» en todos los casos." }
+  },
+  "confusiones": [
+    { "a": "haber", "b": "a ver", "porque": "«haber» es verbo (puede haber problemas, haber venido). «a ver» es la preposición «a» + el verbo «ver»: a ver qué pasa, a ver si vienes." },
+    { "a": "hay", "b": "ahí", "porque": "«hay» es del verbo haber (hay comida). «ahí» indica lugar (está ahí). «¡ay!» expresa dolor o sorpresa." },
+    { "a": "hay", "b": "ay", "porque": "«hay» es del verbo haber (hay comida). «¡ay!» expresa dolor o sorpresa. «ahí» indica lugar." },
+    { "a": "echo", "b": "hecho", "porque": "«echo» es del verbo echar (echo la sal). «hecho», con h, es del verbo hacer (lo he hecho) o significa «suceso» (un hecho histórico)." },
+    { "a": "valla", "b": "vaya", "porque": "«vaya» es del verbo ir o una exclamación (¡vaya!, que te vaya bien). «valla» es una cerca o un cartel publicitario." },
+    { "a": "halla", "b": "haya", "porque": "«haya» es del verbo haber (ojalá haya tiempo). «halla» es del verbo hallar, encontrar (halla la respuesta)." },
+    { "a": "por que", "b": "porque", "porque": "«porque» junto explica la causa (vine porque quise). «por qué» separado y con tilde pregunta (¿por qué?). «por que» separado y sin tilde es poco común (la razón por que vino)." },
+    { "a": "porque", "b": "por qué", "porque": "«por qué» separado y con tilde pregunta: ¿por qué lloras?, no sé por qué. «porque» junto y sin tilde responde o explica la causa: porque sí." },
+    { "a": "sino", "b": "si no", "porque": "«sino» une ideas opuestas (no es rojo, sino azul). «si no» es condicional + negación (si no vienes, me voy)." },
+    { "a": "asimismo", "b": "así mismo", "porque": "«asimismo» significa «también» (asimismo, quiero agradecer…). «así mismo» significa «de la misma manera» (hazlo así mismo)." },
+    { "a": "tuvo", "b": "tubo", "porque": "«tuvo», con v, es del verbo tener (tuvo suerte). «tubo», con b, es un cilindro hueco (el tubo del agua)." },
+    { "a": "vello", "b": "bello", "porque": "«bello», con b, significa hermoso. «vello», con v, es el pelo fino del cuerpo." },
+    { "a": "ves", "b": "vez", "porque": "«vez», con z, es una ocasión (una vez, a veces). «ves», con s, es del verbo ver (¿lo ves?)." },
+    { "a": "abría", "b": "habría", "porque": "«habría», con h, es del verbo haber (habría venido). «abría», sin h, es del verbo abrir (abría la puerta)." },
+    { "a": "iba", "b": "iva", "porque": "«iba», con b, es del verbo ir (iba a casa). «IVA» es el impuesto, una sigla en mayúsculas." }
+  ],
+  "tildes": {
+    "aguda_con": "Es una palabra aguda (suena más fuerte la última sílaba: {silabas}) y termina en vocal, «n» o «s», por eso lleva tilde.",
+    "aguda_sin": "Es aguda (suena más fuerte la última sílaba: {silabas}) y no termina en vocal, «n» ni «s», por eso no lleva tilde.",
+    "llana_con": "Es una palabra llana o grave (suena más fuerte la penúltima sílaba: {silabas}) y no termina en vocal, «n» ni «s», por eso lleva tilde.",
+    "llana_sin": "Es llana o grave (suena más fuerte la penúltima sílaba: {silabas}) y termina en vocal, «n» o «s», por eso no lleva tilde.",
+    "esdrujula": "Es esdrújula (suena más fuerte la antepenúltima sílaba: {silabas}). Las esdrújulas siempre llevan tilde.",
+    "hiato": "La tilde en la «{vocal}» marca un hiato: esa vocal se pronuncia aparte de la de al lado ({silabas}), en vez de formar una sola sílaba.",
+    "monosilabo": "Las palabras de una sola sílaba no llevan tilde, salvo las que la necesitan para distinguirse de otra igual (tú/tu, él/el, sí/si, más/mas…).",
+    "general": "Cambia la tilde. La tilde marca la sílaba que suena más fuerte o distingue palabras que se escriben igual."
+  },
+  "mayusculas": {
+    "es_inicio": "Va con mayúscula porque empieza la oración (está al inicio del texto o después de punto, «?» o «!»).",
+    "es_propio": "Va con mayúscula porque es un nombre propio (persona, lugar, institución, marca…).",
+    "es_minuscula": "Va en minúscula: «{palabra}» es una palabra común en medio de la oración. La mayúscula solo va al empezar la oración y en nombres propios.",
+    "en_inicio": "En inglés también se escribe mayúscula al empezar la oración.",
+    "en_propio": "En inglés van con mayúscula los nombres propios, el pronombre «I», los días, los meses, los idiomas y las nacionalidades (Monday, June, English).",
+    "en_minuscula": "En inglés esta palabra va en minúscula en medio de la oración."
+  },
+  "repetida": "La palabra «{palabra}» está repetida. Suele pasar al editar el texto: borra una de las dos.",
+  "espacios": "Sobra o falta un espacio. Después de coma y punto va un espacio, y antes no.",
+  "generica": "LanguageTool sugiere revisar esta parte."
+}

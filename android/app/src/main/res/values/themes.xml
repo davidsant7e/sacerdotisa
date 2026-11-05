@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Tema" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/noche</item>
+        <item name="android:colorAccent">@color/durazno</item>
+        <item name="android:windowBackground">@color/noche</item>
+        <item name="android:colorControlActivated">@color/durazno</item>
+    </style>
+
+    <style name="Tema.Dialogo" parent="android:Theme.Material.Dialog.NoActionBar">
+        <item name="android:colorAccent">@color/durazno</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+</resources>

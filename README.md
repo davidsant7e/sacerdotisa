@@ -17,6 +17,7 @@ Hay dos formas de usarla, con el mismo motor y las mismas explicaciones:
 |---|---|---|
 | **Extensión** (`extension/`) | Firefox, Brave y Chrome: cualquier página web | Selecciona y pulsa **Ctrl+Shift+U**, o clic derecho → *Revisar y explicar con La Sacerdotisa* |
 | **App de Windows** (`windows/`) | **En todos los programas**: Word, Bloc de notas, WhatsApp, Google Docs… | Selecciona y pulsa **Ctrl+Alt+Win+E** |
+| **App de Android** (`android/`) | **En todas las apps del celular**: WhatsApp, Notas, Messenger… | **Automática**: mientras escribes sale una burbuja; tócala para ver el porqué. O selecciona → **Explicar**. [Cómo instalarla](android/README.md) |
 
 En el panel eliges las sugerencias que quieras y pulsas **Aplicar cambios** (extensión) o **Reemplazar en el texto** (Windows): el texto se corrige ahí mismo.
 
@@ -47,7 +48,7 @@ En el ícono junto al reloj: *Revisar el portapapeles* (también con doble clic)
 
 ## Privacidad
 
-El texto se envía a LanguageTool **solo cuando lo pides** (atajo, menú o botón); nunca se lee la página por su cuenta. El servicio gratuito admite unas 20 revisiones por minuto y hasta unos 20 KB por texto, y pide no enviarle consultas automáticas.
+En la extensión y en Windows, el texto se envía a LanguageTool **solo cuando lo pides** (atajo, menú o botón); nunca se lee la página por su cuenta. En **Android** la burbuja revisa mientras escribes: lee solo el campo donde escribes (nunca contraseñas), y lo envía a LanguageTool solo si lo dejas activado en la app; sin LanguageTool usa reglas del celular y nada sale del teléfono. El servicio gratuito admite unas 20 revisiones por minuto y hasta unos 20 KB por texto, y pide no enviarle consultas automáticas.
 
 ## Código
 
@@ -58,9 +59,10 @@ El texto se envía a LanguageTool **solo cuando lo pides** (atajo, menú o botó
 | `extension/contenido.js`, `background.js` | Panel en la página y consulta a LanguageTool. |
 | `windows/src/Explicador.cs` | El mismo motor en C#. |
 | `windows/src/App.cs`, `Ventana.cs` | Atajo, captura del texto seleccionado, ventana. |
-| `compartido/casos.json` | Casos de prueba que deben dar lo mismo en los dos motores. |
+| `android/app/src/main/java/…/motor/Explicador.kt` | El mismo motor en Kotlin (Android). |
+| `compartido/casos.json` | Casos de prueba que deben dar lo mismo en los tres motores. |
 
-Pruebas: `node tests/explicar.test.js` (extensión) y `windows/tests/ExplicadorTests.cs` (Windows).
+Pruebas: `node tests/explicar.test.js` (extensión), `windows/tests/ExplicadorTests.cs` (Windows) y `./gradlew testDebugUnitTest` en `android/`.
 
 ## Estado
 
