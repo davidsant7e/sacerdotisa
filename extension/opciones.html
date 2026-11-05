@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>La Sacerdotisa — opciones</title>
+<style>
+  body { font: 14px/1.5 'Segoe UI', system-ui, sans-serif; background: #1f2a5c; color: #fff; margin: 0; padding: 20px; min-width: 320px; }
+  h1 { font-size: 15px; color: #f4a582; letter-spacing: .06em; margin: 0 0 12px; }
+  label { display: block; margin: 10px 0 4px; }
+  select { font: inherit; padding: 4px 8px; border-radius: 6px; }
+  p { color: #d9cfe0; font-size: 13px; }
+  a { color: #f4a582; }
+  .ok { color: #f4a582; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>II · LA SACERDOTISA</h1>
+  <label for="idioma">Idioma de tus textos</label>
+  <select id="idioma">
+    <option value="auto">Detectar solo (español o inglés)</option>
+    <option value="es">Español</option>
+    <option value="en-US">Inglés (EE. UU.)</option>
+  </select>
+  <span id="guardado" class="ok"></span>
+  <p>Cómo usarla: selecciona un texto y pulsa <b>Ctrl+Shift+U</b>, o clic derecho → <i>Revisar y explicar con La Sacerdotisa</i>.
+     En un campo de texto sin selección revisa todo el campo.</p>
+  <p id="permiso" hidden>Falta permitir la conexión con LanguageTool (en Firefox se pide aparte):
+     <button id="pedir">Permitir LanguageTool</button></p>
+  <p>El texto seleccionado se envía a <a href="https://languagetool.org" target="_blank" rel="noopener">LanguageTool</a> solo cuando lo pides.</p>
+  <script src="opciones.js"></script>
+</body>
+</html>

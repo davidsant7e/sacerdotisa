@@ -1,0 +1,132 @@
+{
+  "silabas": [
+    { "palabra": "está", "marcadas": "es-TÁ" },
+    { "palabra": "canción", "marcadas": "can-CIÓN" },
+    { "palabra": "árbol", "marcadas": "ÁR-bol" },
+    { "palabra": "música", "marcadas": "MÚ-si-ca" },
+    { "palabra": "día", "marcadas": "DÍ-a" },
+    { "palabra": "examen", "marcadas": "e-XA-men" },
+    { "palabra": "reloj", "marcadas": "re-LOJ" },
+    { "palabra": "queso", "marcadas": "QUE-so" },
+    { "palabra": "problema", "marcadas": "pro-BLE-ma" },
+    { "palabra": "construir", "marcadas": "cons-TRUIR" },
+    { "palabra": "poeta", "marcadas": "po-E-ta" }
+  ],
+  "explicar": [
+    {
+      "nombre": "Vida en mayúscula en medio de la oración",
+      "texto": "Si la Vida es bella.", "offset": 6, "length": 4, "reemplazo": "vida",
+      "categoria": "CASING", "issueType": "typographical", "idioma": "es",
+      "tipo": "CASING", "contiene": ["minúscula", "«Vida»"]
+    },
+    {
+      "nombre": "Minúscula al empezar la oración",
+      "texto": "Hola. mañana voy.", "offset": 6, "length": 6, "reemplazo": "Mañana",
+      "categoria": "CASING", "issueType": "typographical", "idioma": "es",
+      "tipo": "CASING", "contiene": ["empieza la oración"]
+    },
+    {
+      "nombre": "Nombre propio",
+      "texto": "Vivo en bogotá.", "offset": 8, "length": 6, "reemplazo": "Bogotá",
+      "categoria": "CASING", "issueType": "misspelling", "idioma": "es",
+      "tipo": "CASING", "contiene": ["nombre propio"]
+    },
+    {
+      "nombre": "esta → está (diacrítica)",
+      "texto": "La casa esta lejos.", "offset": 8, "length": 4, "reemplazo": "está",
+      "categoria": "DIACRITICS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["verbo estar"]
+    },
+    {
+      "nombre": "tu → tú",
+      "texto": "Eso lo sabes tu.", "offset": 13, "length": 2, "reemplazo": "tú",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["pronombre personal"]
+    },
+    {
+      "nombre": "Aguda terminada en n",
+      "texto": "Una cancion bonita.", "offset": 4, "length": 7, "reemplazo": "canción",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["aguda", "can-CIÓN", "lleva tilde"]
+    },
+    {
+      "nombre": "Llana terminada en consonante",
+      "texto": "Un arbol grande.", "offset": 3, "length": 5, "reemplazo": "árbol",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["llana", "ÁR-bol"]
+    },
+    {
+      "nombre": "Esdrújula",
+      "texto": "Me gusta la musica.", "offset": 12, "length": 6, "reemplazo": "música",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["esdrújula", "siempre"]
+    },
+    {
+      "nombre": "Hiato",
+      "texto": "Buen dia.", "offset": 5, "length": 3, "reemplazo": "día",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["hiato", "DÍ-a"]
+    },
+    {
+      "nombre": "Tilde que sobra en llana terminada en n",
+      "texto": "El exámen fue fácil.", "offset": 3, "length": 6, "reemplazo": "examen",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["no lleva tilde", "e-XA-men"]
+    },
+    {
+      "nombre": "Monosílabo",
+      "texto": "Lo vió ayer.", "offset": 3, "length": 3, "reemplazo": "vio",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "es",
+      "tipo": "DIACRITICS", "contiene": ["una sola sílaba"]
+    },
+    {
+      "nombre": "Haber / a ver",
+      "texto": "Haber si vienes.", "offset": 0, "length": 5, "reemplazo": "A ver",
+      "categoria": "CONFUSED_WORDS", "issueType": "grammar", "idioma": "es",
+      "tipo": "CONFUSED_WORDS", "contiene": ["a ver qué pasa"]
+    },
+    {
+      "nombre": "Palabra repetida",
+      "texto": "Fue el el mejor.", "offset": 4, "length": 5, "reemplazo": "el",
+      "categoria": "MISC", "issueType": "duplication", "idioma": "es",
+      "tipo": "REDUNDANCY", "contiene": ["repetida"]
+    },
+    {
+      "nombre": "Espacio de más",
+      "texto": "Hola ,amigo.", "offset": 4, "length": 2, "reemplazo": ", ",
+      "categoria": "TYPOGRAPHY", "issueType": "whitespace", "idioma": "es",
+      "tipo": "TYPOGRAPHY", "contiene": ["espacio"]
+    },
+    {
+      "nombre": "Categoría de gramática",
+      "texto": "Los niño juegan.", "offset": 0, "length": 8, "reemplazo": "Los niños",
+      "categoria": "GRAMMAR", "issueType": "grammar", "idioma": "es",
+      "tipo": "GRAMMAR", "contiene": ["concuerdan"]
+    },
+    {
+      "nombre": "Inglés: pronombre I",
+      "texto": "Yesterday i went home.", "offset": 10, "length": 1, "reemplazo": "I",
+      "categoria": "CASING", "issueType": "typographical", "idioma": "en-US",
+      "tipo": "CASING", "contiene": ["inglés", "«I»"]
+    },
+    {
+      "nombre": "Inglés: sin reglas de tilde del español",
+      "texto": "The cafe is open.", "offset": 4, "length": 4, "reemplazo": "café",
+      "categoria": "TYPOS", "issueType": "misspelling", "idioma": "en-US",
+      "tipo": "TYPOS", "contiene": ["diccionario"]
+    },
+    {
+      "nombre": "Categoría desconocida usa el tipo de problema",
+      "texto": "Texto de prueba.", "offset": 0, "length": 5, "reemplazo": "",
+      "categoria": "RARA", "issueType": "style", "idioma": "es",
+      "tipo": "STYLE", "contiene": ["más clara"]
+    }
+  ],
+  "aplicar": [
+    {
+      "texto": "Si la Vida esta bien.",
+      "cambios": [ { "offset": 6, "length": 4, "valor": "vida" }, { "offset": 11, "length": 4, "valor": "está" } ],
+      "resultado": "Si la vida está bien."
+    }
+  ]
+}

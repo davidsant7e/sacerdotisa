@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "La Sacerdotisa — corrector que explica",
+  "short_name": "La Sacerdotisa",
+  "version": "0.1.0",
+  "description": "Selecciona un texto y te explica cada error: mayúsculas, tildes, palabras que se confunden y más. Usa LanguageTool.",
+  "icons": {
+    "16": "iconos/16.png",
+    "32": "iconos/32.png",
+    "48": "iconos/48.png",
+    "128": "iconos/128.png"
+  },
+  "action": {
+    "default_title": "La Sacerdotisa: revisar el texto seleccionado",
+    "default_icon": {
+      "16": "iconos/16.png",
+      "32": "iconos/32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.languagetool.org/*"
+  ],
+  "commands": {
+    "revisar": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "Command+Shift+U"
+      },
+      "description": "Revisar el texto seleccionado"
+    }
+  },
+  "options_ui": {
+    "page": "opciones.html",
+    "open_in_tab": false
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "datos/explicaciones.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "sacerdotisa@davidsant7e",
+      "strict_min_version": "121.0",
+      "data_collection_permissions": {
+        "required": [
+          "websiteContent"
+        ]
+      }
+    }
+  }
+}
