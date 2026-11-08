@@ -18,7 +18,10 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import android.text.InputType
+import android.widget.Toast
 import com.davidsant7e.sacerdotisa.Ajustes
+import com.davidsant7e.sacerdotisa.Boveda
 import com.davidsant7e.sacerdotisa.Motor
 import com.davidsant7e.sacerdotisa.R
 import com.davidsant7e.sacerdotisa.motor.Aviso
@@ -34,6 +37,8 @@ class MainActivity : Activity() {
     private lateinit var excluidas: LinearLayout
     private lateinit var resultados: LinearLayout
     private lateinit var prueba: EditText
+    private lateinit var estadoGemini: TextView
+    private var avisosPrueba: List<Aviso> = emptyList()
     private val principal = Handler(Looper.getMainLooper())
     private val trabajo = Executors.newSingleThreadExecutor()
     private var version = 0
@@ -87,8 +92,39 @@ class MainActivity : Activity() {
             13f, Vistas.CREMA), c, arriba = 2))
         col.addView(interruptor("Detectar inglés (si no, siempre español)", ajustes.idioma == "auto") { ajustes.idioma = if (it) "auto" else "es" })
         col.addView(interruptor("Avisar si empiezo en minúscula", ajustes.mayusculaInicio) { ajustes.mayusculaInicio = it })
-        col.addView(interruptor("Puntuación (¿ ¡, comas)", ajustes.puntuacion) { ajustes.puntuacion = it })
+        col.addView(interruptor("Comas mal puestas o que faltan (mira la frase completa)", ajustes.comas) { ajustes.comas = it })
+        col.addView(Vistas.margen(Vistas.texto(c,
+            "Sin internet: coma entre sujeto y verbo, antes de la «y» final de una lista, antes de «que», " +
+                "falta antes de «pero», después de «sin embargo», o con el nombre de a quien le hablas («Hola, Juan»).",
+            13f, Vistas.CREMA), c, arriba = 2))
+        col.addView(interruptor("Puntuación de LanguageTool (¿ ¡ y otras)", ajustes.puntuacion) { ajustes.puntuacion = it })
         col.addView(interruptor("Sugerencias de estilo", ajustes.estilo) { ajustes.estilo = it })
+
+        // Revisión completa con Gemini
+        col.addView(seccion("Revisar el texto completo (Gemini)"))
+        col.addView(Vistas.margen(Vistas.texto(c,
+            "En la burbuja aparece «Revisar texto completo»: Gemini lee todo lo que escribiste y explica comas, " +
+                "concordancia y frases que no se entienden, no solo palabra por palabra. Solo se usa cuando lo tocas; " +
+                "el texto se envía a Google. La clave es la misma de La Justicia y El Sol (aistudio.google.com → Get API key).",
+            13f, Vistas.CREMA), c, arriba = 4))
+        estadoGemini = Vistas.texto(c, "", 14f, Vistas.BLANCO, negrita = true)
+        col.addView(Vistas.margen(estadoGemini, c, arriba = 8))
+        val clave = campo("Pega aquí la clave de Gemini", secreto = true)
+        col.addView(Vistas.margen(clave, c, arriba = 6))
+        val modelo = campo("Modelo", secreto = false).apply { setText(ajustes.modeloGemini) }
+        col.addView(Vistas.margen(modelo, c, arriba = 6))
+        val filaClave = Vistas.fila(c)
+        filaClave.addView(Vistas.boton(c, "Guardar", true) {
+            if (clave.text.isNotBlank()) Boveda.guardar(c, clave.text.toString().trim())
+            ajustes.modeloGemini = modelo.text.toString()
+            clave.setText("")
+            pintarGemini()
+            Toast.makeText(c, "Guardado", Toast.LENGTH_SHORT).show()
+        })
+        filaClave.addView(View(c), LinearLayout.LayoutParams(Vistas.dp(c, 10), 1))
+        filaClave.addView(Vistas.boton(c, "Borrar clave", false) { Boveda.borrar(c); pintarGemini() })
+        col.addView(Vistas.margen(filaClave, c, arriba = 8))
+        pintarGemini()
 
         // 3. Apps sin revisar
         col.addView(seccion("3. Apps donde no se revisa"))
@@ -108,6 +144,7 @@ class MainActivity : Activity() {
             gravity = Gravity.TOP
         }
         col.addView(Vistas.margen(prueba, c, arriba = 8))
+        col.addView(Vistas.margen(Vistas.boton(c, "Revisar texto completo (Gemini)", false) { revisarPruebaCompleta() }, c, arriba = 8))
         resultados = Vistas.columna(c)
         col.addView(resultados)
         prueba.addTextChangedListener(object : TextWatcher {
@@ -194,7 +231,42 @@ class MainActivity : Activity() {
         }, 1500)
     }
 
+    private fun pintarGemini() {
+        estadoGemini.text = if (Boveda.hay(this)) "✓ Hay una clave de Gemini guardada (cifrada en el celular)." else "Sin clave de Gemini: la burbuja no ofrecerá la revisión completa."
+    }
+
+    private fun campo(pista: String, secreto: Boolean) = EditText(this).apply {
+        hint = pista
+        setHintTextColor(0x99FFFFFF.toInt())
+        setTextColor(Vistas.BLANCO)
+        background = Vistas.fondo(this@MainActivity, Vistas.NOCHE_CLARA, 12, Vistas.DURAZNO)
+        setPadding(Vistas.dp(this@MainActivity, 12), Vistas.dp(this@MainActivity, 10), Vistas.dp(this@MainActivity, 12), Vistas.dp(this@MainActivity, 10))
+        isSingleLine = true
+        inputType = if (secreto) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else InputType.TYPE_CLASS_TEXT
+    }
+
+    private fun revisarPruebaCompleta() {
+        val texto = prueba.text.toString()
+        if (texto.isBlank()) return
+        if (!Boveda.hay(this)) { Toast.makeText(this, "Primero guarda la clave de Gemini.", Toast.LENGTH_LONG).show(); return }
+        val v = version
+        val modelo = ajustes.modeloGemini
+        Toast.makeText(this, "Revisando el texto completo…", Toast.LENGTH_SHORT).show()
+        trabajo.execute {
+            val r = runCatching { Motor.gemini.revisar(texto, Boveda.leer(this), modelo) }
+            principal.post {
+                if (v != version) return@post
+                r.onSuccess { h ->
+                    val revisor = Motor.revisor(this)
+                    pintarResultados(revisor.conIA(avisosPrueba, revisor.deIA(h)), texto)
+                    if (h.isEmpty()) Toast.makeText(this, "Gemini no encontró más errores.", Toast.LENGTH_LONG).show()
+                }.onFailure { Toast.makeText(this, "No se pudo: ${it.message}", Toast.LENGTH_LONG).show() }
+            }
+        }
+    }
+
     private fun pintarResultados(avisos: List<Aviso>, texto: String) {
+        avisosPrueba = avisos
         resultados.removeAllViews()
         if (texto.isBlank()) return
         if (avisos.isEmpty()) {

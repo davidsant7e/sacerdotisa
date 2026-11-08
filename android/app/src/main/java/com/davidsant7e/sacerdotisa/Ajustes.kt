@@ -30,9 +30,19 @@ class Ajustes(context: Context) {
         get() = p.getBoolean("puntuacion", false)
         set(v) = p.edit().putBoolean("puntuacion", v).apply()
 
+    /** Comas mal puestas o que faltan (reglas de la frase completa). */
+    var comas: Boolean
+        get() = p.getBoolean("comas", true)
+        set(v) = p.edit().putBoolean("comas", v).apply()
+
     var estilo: Boolean
         get() = p.getBoolean("estilo", false)
         set(v) = p.edit().putBoolean("estilo", v).apply()
+
+    /** Modelo de Gemini para «Revisar texto completo». */
+    var modeloGemini: String
+        get() = p.getString("modeloGemini", null)?.takeIf { it.isNotBlank() } ?: com.davidsant7e.sacerdotisa.motor.Gemini.MODELO
+        set(v) = p.edit().putString("modeloGemini", v.trim()).apply()
 
     /** Apps donde no se revisa (paquetes). */
     var excluidas: Set<String>
@@ -44,6 +54,7 @@ class Ajustes(context: Context) {
 
     fun filtros() = Filtros(
         puntuacion = puntuacion,
+        comas = comas,
         estilo = estilo,
         ignorarReglas = if (mayusculaInicio) emptySet() else setOf("SACERDOTISA_INICIO", "UPPERCASE_SENTENCE_START"),
     )

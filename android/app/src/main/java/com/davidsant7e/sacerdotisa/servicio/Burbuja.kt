@@ -24,6 +24,7 @@ class Burbuja(
     private val alCorregir: (Aviso) -> Unit,
     private val alCorregirTodo: () -> Unit,
     private val alExcluirApp: () -> Unit,
+    private val alRevisarCompleto: () -> Unit,
 ) {
     private val wm = c.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val raiz = FrameLayout(c)
@@ -32,6 +33,10 @@ class Burbuja(
     private var avisos: List<Aviso> = emptyList()
     private var campo = Rect()
     private var nombreApp = ""
+    /** Mensaje de «Revisar texto completo» (revisando, sin errores, falta la clave…). */
+    private var estadoIA: String? = null
+    private var ofrecerIA = false
+    private var revisandoIA = false
 
     private val lp = WindowManager.LayoutParams(
         WindowManager.LayoutParams.WRAP_CONTENT,
@@ -57,12 +62,27 @@ class Burbuja(
 
     val visible: Boolean get() = agregada
 
-    /** Muestra (o actualiza) la burbuja junto al campo de texto (coordenadas de pantalla). */
-    fun mostrar(nuevos: List<Aviso>, campoEnPantalla: Rect, app: String) {
+    /**
+     * Muestra (o actualiza) la burbuja junto al campo de texto (coordenadas de pantalla).
+     * Sin avisos se esconde, salvo que se pueda ofrecer «Revisar texto completo».
+     */
+    fun mostrar(
+        nuevos: List<Aviso>,
+        campoEnPantalla: Rect,
+        app: String,
+        ofrecerRevisionCompleta: Boolean = false,
+        mensajeIA: String? = null,
+        revisando: Boolean = false,
+        abrir: Boolean = false,
+    ) {
         avisos = nuevos
         campo = Rect(campoEnPantalla)
         nombreApp = app
-        if (avisos.isEmpty()) { ocultar(); return }
+        ofrecerIA = ofrecerRevisionCompleta
+        estadoIA = mensajeIA
+        revisandoIA = revisando
+        if (abrir) abierta = true
+        if (avisos.isEmpty() && !ofrecerIA && estadoIA == null) { ocultar(); return }
         dibujar()
     }
 
@@ -111,14 +131,19 @@ class Burbuja(
         else agregada = runCatching { wm.addView(raiz, lp) }.isSuccess
     }
 
-    /** «II · 2» */
+    /** «II · 2» (o «II · revisar» si no hay avisos pero se puede revisar el texto completo). */
     private fun chip(): View {
         val n = avisos.size
-        val t = Vistas.texto(c, "II  ·  $n ${if (n == 1) "aviso" else "avisos"}", 13f, Vistas.NOCHE, negrita = true)
+        val etiqueta = when {
+            revisandoIA -> "II  ·  revisando…"
+            n == 0 -> "II  ·  revisar texto"
+            else -> "II  ·  $n ${if (n == 1) "aviso" else "avisos"}"
+        }
+        val t = Vistas.texto(c, etiqueta, 13f, Vistas.NOCHE, negrita = true)
         t.background = Vistas.fondo(c, Vistas.DURAZNO, 18)
         t.setPadding(Vistas.dp(c, 14), Vistas.dp(c, 7), Vistas.dp(c, 14), Vistas.dp(c, 7))
         t.elevation = Vistas.dp(c, 6).toFloat()
-        t.contentDescription = "La Sacerdotisa: $n avisos. Toca para ver por qué."
+        t.contentDescription = if (n == 0) "La Sacerdotisa: revisar el texto completo." else "La Sacerdotisa: $n avisos. Toca para ver por qué."
         t.setOnClickListener { abierta = true; dibujar() }
         return t
     }
@@ -138,6 +163,19 @@ class Burbuja(
         cerrar.setOnClickListener { cerrarPanel() }
         cabeza.addView(cerrar)
         col.addView(cabeza)
+
+        // Revisión del texto completo (comas, concordancia, sentido) con Gemini, solo si la pides.
+        if (ofrecerIA || estadoIA != null) {
+            val fila = Vistas.fila(c)
+            val nota = Vistas.texto(c, estadoIA ?: "¿Comas, concordancia o una frase rara? Revisa todo el texto.", 13f, Vistas.CREMA)
+            fila.addView(nota, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            if (ofrecerIA && !revisandoIA) {
+                val b = Vistas.boton(c, "Revisar texto completo", false) { alRevisarCompleto() }
+                fila.addView(b, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    .also { it.marginStart = Vistas.dp(c, 8) })
+            }
+            col.addView(Vistas.margen(fila, c, arriba = 6))
+        }
 
         val lista = Vistas.columna(c)
         for (a in avisos) lista.addView(Vistas.margen(Vistas.tarjeta(c, a) { alCorregir(it) }, c, arriba = 8))

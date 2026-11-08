@@ -2,6 +2,7 @@ package com.davidsant7e.sacerdotisa
 
 import android.content.Context
 import com.davidsant7e.sacerdotisa.motor.Datos
+import com.davidsant7e.sacerdotisa.motor.Gemini
 import com.davidsant7e.sacerdotisa.motor.LanguageTool
 import com.davidsant7e.sacerdotisa.motor.Revisor
 
@@ -9,6 +10,7 @@ import com.davidsant7e.sacerdotisa.motor.Revisor
 object Motor {
     @Volatile private var revisor: Revisor? = null
     val languageTool = LanguageTool()
+    val gemini = Gemini()
 
     fun revisor(context: Context): Revisor = revisor ?: synchronized(this) {
         revisor ?: Revisor(Datos.desdeJson(context.assets.open("explicaciones.json").bufferedReader().use { it.readText() }))

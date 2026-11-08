@@ -26,6 +26,45 @@ object Json {
 
     fun entero(v: Any?, defecto: Int = 0): Int = (v as? Double)?.toInt() ?: defecto
 
+    /** Escribe mapas, listas, textos, números, booleanos y null como JSON (para pedirle cosas a Gemini). */
+    fun escribir(v: Any?): String = StringBuilder().also { escribir(v, it) }.toString()
+
+    private fun escribir(v: Any?, b: StringBuilder) {
+        when (v) {
+            null -> b.append("null")
+            is String -> {
+                b.append('"')
+                for (c in v) when (c) {
+                    '"' -> b.append("\\\"")
+                    '\\' -> b.append("\\\\")
+                    '\n' -> b.append("\\n")
+                    '\r' -> b.append("\\r")
+                    '\t' -> b.append("\\t")
+                    else -> if (c < ' ') b.append(String.format("\\u%04x", c.code)) else b.append(c)
+                }
+                b.append('"')
+            }
+            is Boolean, is Int, is Long -> b.append(v)
+            is Number -> b.append(v.toDouble().let { if (it == Math.rint(it)) it.toLong().toString() else it.toString() })
+            is Map<*, *> -> {
+                b.append('{')
+                v.entries.forEachIndexed { k, (clave, valor) ->
+                    if (k > 0) b.append(',')
+                    escribir(clave.toString(), b)
+                    b.append(':')
+                    escribir(valor, b)
+                }
+                b.append('}')
+            }
+            is Iterable<*> -> {
+                b.append('[')
+                v.forEachIndexed { k, x -> if (k > 0) b.append(','); escribir(x, b) }
+                b.append(']')
+            }
+            else -> escribir(v.toString(), b)
+        }
+    }
+
     private class Lector(val s: String) {
         var i = 0
 

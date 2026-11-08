@@ -78,7 +78,7 @@ object Vistas {
         val col = columna(c)
         col.background = fondo(c, NOCHE_CLARA, 12)
         col.setPadding(dp(c, 14), dp(c, 12), dp(c, 14), dp(c, 12))
-        col.addView(etiqueta(c, e.titulo))
+        col.addView(etiqueta(c, if (a.deIA) "${e.titulo} · Gemini" else e.titulo))
         val cambio = if (a.sugerencia != null) "«${e.original.trim()}»  →  «${a.sugerencia}»" else "«${e.original.trim()}»"
         col.addView(margen(texto(c, cambio, 16f, BLANCO, negrita = true), c, arriba = 4))
         col.addView(margen(texto(c, e.porque, 14f, CREMA), c, arriba = 6))

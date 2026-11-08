@@ -27,7 +27,36 @@ Es una palabra llana o grave (FÁ-cil) y no termina en vocal, «n» ni «s», po
 
 Las explicaciones son las mismas de la extensión y de la app de Windows (`extension/datos/explicaciones.json`).
 
-Puntuación (los «¿ ¡» de apertura, comas) y estilo vienen **apagados**: en el chat casi nadie abre «¿» y molestaría. Se prenden en la app.
+Puntuación de LanguageTool (los «¿ ¡» de apertura y otras) y estilo vienen **apagados**: en el chat casi nadie abre «¿» y molestaría. Se prenden en la app.
+
+### Comas: mirando la frase completa
+
+Además de las palabras, La Sacerdotisa revisa **dónde va y dónde no va una coma** según la estructura de la frase
+(`ReglasComas.kt`, sin internet, encendido por defecto):
+
+| Caso | Ejemplo | Corrección |
+|---|---|---|
+| Sobra entre sujeto y verbo | «El perro de mi vecino, es bravo» | «…vecino es bravo» |
+| Sobra antes de la «y» final de una lista | «pan, leche, y huevos» | «pan, leche y huevos» |
+| Sobra antes de «que» | «Me dijo, que vendría» | «Me dijo que vendría» |
+| Falta antes de «pero» / «aunque» | «Quería ir pero llovió» | «Quería ir, pero llovió» |
+| Falta después de un conector | «Sin embargo no llegó» | «Sin embargo, no llegó» |
+| Conector en medio, entre comas | «Lo intenté sin embargo no pude» | «Lo intenté, sin embargo, no pude» |
+| Falta con el nombre de a quien le hablas | «Hola Juan» | «Hola, Juan» |
+
+Son reglas conservadoras: respetan incisos («Mi hermano, que vive en Cali, llega hoy»), complementos de tiempo al
+inicio («Esta semana, tengo…»), vocativos («Juan, es tarde») y frases cortas («pobre pero honrado»).
+
+### Revisar el texto completo (Gemini)
+
+Lo que depende del sentido (una coma que cambia el significado, concordancia, tiempos verbales, una frase que no se
+entiende) lo revisa **Gemini** cuando lo pides: en la burbuja toca **«Revisar texto completo»** (también en el menú
+«Explicar» y en la caja de prueba). Gemini lee todo el texto y devuelve cada error con el fragmento exacto, la corrección
+y el porqué; las tarjetas dicen «· Gemini». Si corriges uno, los demás siguen en su sitio.
+
+- Necesita la clave de Gemini (la misma de La Justicia y El Sol), que se pega en la app y se guarda cifrada con el Android Keystore. Modelo por defecto: `gemini-3.5-flash` (se puede cambiar).
+- Con clave, la burbuja también aparece como «II · revisar texto» en textos de 6 palabras o más aunque no haya otros avisos.
+- Nunca se llama sola mientras escribes: solo al tocar el botón.
 
 ## Instalar (Android Studio)
 
@@ -51,16 +80,17 @@ export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
 - Lee **solo el campo donde estás escribiendo**, y solo mientras escribes. **Nunca lee campos de contraseña.** No guarda el texto.
 - Con **LanguageTool** activado, el texto de ese campo se envía a `languagetool.org` para revisarlo (como en la extensión y en Windows). Se puede apagar: entonces nada sale del celular.
 - Para no abusar del servicio gratuito: consulta cuando dejas de escribir (1,5 s), máximo 10 veces por minuto, y espera si LanguageTool pide calma.
+- Con **Revisar texto completo**, el texto se envía a Google (Gemini) solo en ese momento.
 
 ## Código
 
 | Ruta | Qué es |
 |---|---|
-| `app/src/main/java/…/motor/` | El motor, en Kotlin puro (sin Android): `Explicador` (el mismo de `explicar.js` y `Explicador.cs`), `ReglasLocales`, `LanguageTool`, `Revisor`, `Json`. |
+| `app/src/main/java/…/motor/` | El motor, en Kotlin puro (sin Android): `Explicador` (el mismo de `explicar.js` y `Explicador.cs`), `ReglasLocales` (palabras), `ReglasComas` (frase completa), `LanguageTool`, `Gemini`, `Revisor`, `Json`. |
 | `…/servicio/SacerdotisaService.kt` | Servicio de accesibilidad: lee el campo, revisa y corrige (`ACTION_SET_TEXT`). |
 | `…/servicio/Burbuja.kt` | La burbuja y el panel (ventana de accesibilidad: no pide «Mostrar sobre otras apps»). |
 | `…/ui/MainActivity.kt` | Activar, ajustes y caja de prueba. |
 | `…/ui/ExplicarActivity.kt` | Menú «Explicar» al seleccionar texto. |
-| `app/src/test/…` | Pruebas: los casos de `compartido/casos.json` y las reglas locales (con textos de chat que **no** deben dar avisos). |
+| `app/src/test/…` | 29 pruebas: los casos de `compartido/casos.json`, las reglas locales y de comas (con textos que **no** deben dar avisos) y la lectura de respuestas de Gemini. |
 
 Sin librerías: solo Android y Kotlin (AGP 9.4, compileSdk 37, mínimo Android 8).

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import com.davidsant7e.sacerdotisa.Ajustes
+import com.davidsant7e.sacerdotisa.Boveda
 import com.davidsant7e.sacerdotisa.Motor
 import com.davidsant7e.sacerdotisa.motor.Aviso
 import java.util.concurrent.Executors
@@ -27,6 +28,8 @@ class ExplicarActivity : Activity() {
     private var texto = ""
     private var soloLectura = true
     private var avisos: List<Aviso> = emptyList()
+    private var revisandoIA = false
+    private var iaHecha = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +61,7 @@ class ExplicarActivity : Activity() {
                 val r = runCatching { Motor.languageTool.revisar(texto, idioma) }
                 principal.post {
                     if (isFinishing) return@post
-                    r.onSuccess { avisos = revisor.combinados(texto, it, ajustes.filtros()); pintar(null) }
+                    r.onSuccess { avisos = revisor.conIA(revisor.combinados(texto, it, ajustes.filtros()), avisos.filter { a -> a.deIA }); pintar(null) }
                         .onFailure { pintar("Sin conexión con LanguageTool: solo reglas del celular.") }
                 }
             }
@@ -83,8 +86,32 @@ class ExplicarActivity : Activity() {
         pie.removeAllViews()
         pie.addView(Vistas.boton(c, "Cerrar", false) { finish() })
         pie.addView(View(c), LinearLayout.LayoutParams(0, 1, 1f))
+        if (Boveda.hay(c) && !iaHecha && !revisandoIA && texto.isNotBlank()) {
+            pie.addView(Vistas.boton(c, "Texto completo", false) { revisarCompleto() })
+            pie.addView(View(c), LinearLayout.LayoutParams(Vistas.dp(c, 8), 1))
+        }
         if (!soloLectura && avisos.any { it.sugerencia != null }) {
             pie.addView(Vistas.boton(c, "Corregir todo", true) { devolver(Motor.revisor(c).corregirTodo(texto, avisos)) })
+        }
+    }
+
+    /** Gemini lee todo el texto: comas, concordancia, sentido. */
+    private fun revisarCompleto() {
+        revisandoIA = true
+        pintar("Revisando el texto completo con Gemini…")
+        val modelo = Ajustes(this).modeloGemini
+        trabajo.execute {
+            val r = runCatching { Motor.gemini.revisar(texto, Boveda.leer(this), modelo) }
+            principal.post {
+                if (isFinishing) return@post
+                revisandoIA = false
+                iaHecha = true
+                r.onSuccess { h ->
+                    val revisor = Motor.revisor(this)
+                    avisos = revisor.conIA(avisos, revisor.deIA(h))
+                    pintar(if (h.isEmpty()) "✓ Gemini leyó todo el texto y no encontró más errores." else null)
+                }.onFailure { pintar("No se pudo revisar con Gemini: ${it.message}") }
+            }
         }
     }
 

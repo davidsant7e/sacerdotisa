@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.davidsant7e.sacerdotisa.Ajustes
+import com.davidsant7e.sacerdotisa.Boveda
 import com.davidsant7e.sacerdotisa.Motor
 import com.davidsant7e.sacerdotisa.motor.Aviso
 import com.davidsant7e.sacerdotisa.motor.LanguageTool
@@ -33,6 +34,12 @@ class SacerdotisaService : AccessibilityService() {
     private var paquete = ""
     private var texto = ""
     private var avisos: List<Aviso> = emptyList()
+    /** Avisos de las reglas y LanguageTool (sin los de la IA). */
+    private var avisosBase: List<Aviso> = emptyList()
+    /** Avisos de «Revisar texto completo» (Gemini) para el texto actual. */
+    private var avisosIA: List<Aviso> = emptyList()
+    private var mensajeIA: String? = null
+    private var revisandoIA = false
     private var version = 0
 
     private val revisarLocal = Runnable { revisarAhora() }
@@ -49,6 +56,7 @@ class SacerdotisaService : AccessibilityService() {
                 ajustes.excluir(paquete)
                 avisos = emptyList()
             },
+            alRevisarCompleto = { revisarTextoCompleto() },
         )
         Log.i(TAG, "Servicio conectado")
     }
@@ -73,11 +81,12 @@ class SacerdotisaService : AccessibilityService() {
                 nodo = n
                 paquete = pkg
                 if (actual != texto || e.eventType == AccessibilityEvent.TYPE_VIEW_FOCUSED) {
+                    if (actual != texto) olvidarIA()
                     texto = actual
                     version++
                     principal.removeCallbacks(revisarLocal)
                     principal.removeCallbacks(revisarConLanguageTool)
-                    if (texto.isBlank()) { avisos = emptyList(); burbuja.ocultar(); return }
+                    if (texto.isBlank()) { avisos = emptyList(); avisosBase = emptyList(); burbuja.ocultar(); return }
                     principal.postDelayed(revisarLocal, 400)
                     if (ajustes.languageTool) principal.postDelayed(revisarConLanguageTool, 1500)
                 } else if (burbuja.visible) {
@@ -98,14 +107,62 @@ class SacerdotisaService : AccessibilityService() {
         version++
         texto = ""
         avisos = emptyList()
+        avisosBase = emptyList()
+        olvidarIA()
         nodo = null
         if (::burbuja.isInitialized) burbuja.ocultar()
     }
 
+    private fun olvidarIA() {
+        avisosIA = emptyList()
+        mensajeIA = null
+        revisandoIA = false
+    }
+
     private fun revisarAhora() {
-        avisos = Motor.revisor(this).locales(texto, ajustes.filtros())
+        avisosBase = Motor.revisor(this).locales(texto, ajustes.filtros())
+        juntar()
         mostrar()
     }
+
+    private fun juntar() {
+        avisos = Motor.revisor(this).conIA(avisosBase, avisosIA)
+    }
+
+    /** «Revisar texto completo»: Gemini lee todo el texto (comas, concordancia, sentido). */
+    private fun revisarTextoCompleto() {
+        val t = texto
+        val v = version
+        if (t.isBlank() || revisandoIA) return
+        if (!Boveda.hay(this)) {
+            mensajeIA = "Para revisar el texto completo, abre La Sacerdotisa y pega tu clave de Gemini."
+            mostrar(abrir = true)
+            return
+        }
+        revisandoIA = true
+        mensajeIA = "Revisando el texto completo…"
+        mostrar(abrir = true)
+        val modelo = ajustes.modeloGemini
+        trabajo.execute {
+            val r = runCatching { Motor.gemini.revisar(t, Boveda.leer(this), modelo) }
+            principal.post {
+                if (v != version || t != texto) return@post // ya escribiste otra cosa
+                revisandoIA = false
+                r.onSuccess { hallazgos ->
+                    avisosIA = Motor.revisor(this).deIA(hallazgos)
+                    mensajeIA = if (avisosIA.isEmpty()) "✓ Gemini leyó todo el texto y no encontró más errores." else
+                        "Gemini encontró ${avisosIA.size} ${if (avisosIA.size == 1) "detalle" else "detalles"} en el texto completo."
+                }.onFailure { x ->
+                    mensajeIA = "No se pudo revisar con Gemini: ${x.message}"
+                }
+                juntar()
+                mostrar(abrir = true)
+            }
+        }
+    }
+
+    /** Se ofrece la revisión completa en textos de varias palabras (no en un «ok» o un «jaja»). */
+    private fun ofrecerIA(): Boolean = Regex("\\p{L}+").findAll(texto).count() >= 6
 
     private fun consultarLanguageTool() {
         val lt = Motor.languageTool
@@ -124,17 +181,18 @@ class SacerdotisaService : AccessibilityService() {
             } ?: return@execute
             principal.post {
                 if (v != version || t != texto) return@post // ya escribiste otra cosa
-                avisos = Motor.revisor(this).combinados(t, respuesta, ajustes.filtros())
+                avisosBase = Motor.revisor(this).combinados(t, respuesta, ajustes.filtros())
+                juntar()
                 mostrar()
             }
         }
     }
 
-    private fun mostrar() {
+    private fun mostrar(abrir: Boolean = false) {
         val n = nodo ?: return
         val r = Rect()
         n.getBoundsInScreen(r)
-        burbuja.mostrar(avisos, r, nombreDeApp(paquete))
+        burbuja.mostrar(avisos, r, nombreDeApp(paquete), ofrecerIA(), mensajeIA, revisandoIA, abrir)
     }
 
     private fun corregir(a: Aviso) {
@@ -170,6 +228,8 @@ class SacerdotisaService : AccessibilityService() {
         n.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, sel)
         texto = nuevo
         version++
+        // Los avisos de la IA siguen valiendo: se vuelven a ubicar en el texto nuevo.
+        avisosIA = Motor.revisor(this).reubicarIA(nuevo, avisosIA)
         revisarAhora()
         if (ajustes.languageTool) {
             principal.removeCallbacks(revisarConLanguageTool)

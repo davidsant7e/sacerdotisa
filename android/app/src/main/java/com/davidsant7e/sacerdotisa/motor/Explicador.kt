@@ -139,6 +139,9 @@ object Explicador {
         fun res(tipo: String, porque: String) =
             Explicacion(tipo, d.categoria(tipo).titulo, porque, m.message, original, sugerencias)
 
+        // 0) Reglas de coma de la frase completa: cada una trae su propio porqué
+        ReglasComas.PORQUE[m.ruleId]?.let { return res("PUNCTUATION", it) }
+
         // 1) Solo cambia mayúscula/minúscula
         if (rep.isNotEmpty() && original.isNotEmpty() && original != rep && original.lowercase() == rep.lowercase()) {
             val my = d.mayusculas
