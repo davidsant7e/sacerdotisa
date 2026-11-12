@@ -58,6 +58,22 @@ y el porqué; las tarjetas dicen «· Gemini». Si corriges uno, los demás sigu
 - Con clave, la burbuja también aparece como «II · revisar texto» en textos de 6 palabras o más aunque no haya otros avisos.
 - Nunca se llama sola mientras escribes: solo al tocar el botón.
 
+## Apps de bancos
+
+Muchas apps de bancos bloquean el ingreso, o piden desinstalar, si encuentran un **servicio de accesibilidad encendido** que no conocen. La burbuja usa uno, así que pueden detectarla. No hace falta desinstalarla: basta con **apagarla** mientras usas el banco.
+
+- **Apagado automático**: en la app, *Apps de bancos → Agregar apps*. Al abrir una de esas apps, la burbuja se apaga sola. Las que parecen de bancos o pagos salen primero (🏦).
+- **Botón rápido**: baja la cortina de arriba, toca ✎ (editar) y arrastra **La Sacerdotisa** a tus botones. Con un toque se apaga o se enciende.
+- Para que el botón también la **encienda** sin entrar a Accesibilidad, da este permiso una vez desde el PC, con el celular conectado:
+
+  ```
+  adb -s ZY22KKQ9LD shell pm grant com.davidsant7e.sacerdotisa android.permission.WRITE_SECURE_SETTINGS
+  ```
+
+  Sin el permiso, el botón la apaga igual, y para encenderla abre Accesibilidad.
+- Algunos bancos revisan apenas arrancan, antes de que la burbuja alcance a apagarse. Con esos, apágala con el botón rápido **antes** de abrir el banco.
+- La app no se declara como «herramienta de accesibilidad» (`isAccessibilityTool="false"`), porque no lo es. Por eso los bancos la ven, y lo correcto es apagarla.
+
 ## Instalar (Android Studio)
 
 1. **File → Open** → `C:\Git\sacerdotisa\android`. Espera a que termine *Gradle sync*.

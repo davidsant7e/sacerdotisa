@@ -49,6 +49,15 @@ class Ajustes(context: Context) {
         get() = p.getStringSet("excluidas", DEFECTO_EXCLUIDAS) ?: DEFECTO_EXCLUIDAS
         set(v) = p.edit().putStringSet("excluidas", HashSet(v)).apply()
 
+    /** Apps de bancos: al abrirlas, la burbuja se apaga sola para que el banco no la bloquee. */
+    var protegidas: Set<String>
+        get() = p.getStringSet("protegidas", emptySet()) ?: emptySet()
+        set(v) = p.edit().putStringSet("protegidas", HashSet(v)).apply()
+
+    var apagarConBancos: Boolean
+        get() = p.getBoolean("apagarConBancos", true)
+        set(v) = p.edit().putBoolean("apagarConBancos", v).apply()
+
     fun excluir(paquete: String) { excluidas = excluidas + paquete }
     fun incluir(paquete: String) { excluidas = excluidas - paquete }
 

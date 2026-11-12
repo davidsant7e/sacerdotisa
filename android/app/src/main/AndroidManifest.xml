@@ -4,6 +4,21 @@
     <!-- Solo para LanguageTool (se puede apagar en la app). -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Opcional: encender la burbuja desde el botón de ajustes rápidos sin entrar a Accesibilidad.
+         Android solo lo concede por adb:
+         adb shell pm grant com.davidsant7e.sacerdotisa android.permission.WRITE_SECURE_SETTINGS -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Para elegir de la lista las apps de bancos (solo apps con ícono en el menú). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -48,6 +63,21 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accesibilidad" />
+        </service>
+
+        <!-- Botón «Sacerdotisa» en los ajustes rápidos: apagarla antes de abrir el banco. -->
+        <service
+            android:name=".servicio.Mosaico"
+            android:exported="true"
+            android:icon="@drawable/ic_mosaico"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
         </service>
     </application>
 </manifest>

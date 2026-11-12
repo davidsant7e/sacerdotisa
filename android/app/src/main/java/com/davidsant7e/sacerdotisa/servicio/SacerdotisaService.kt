@@ -58,7 +58,15 @@ class SacerdotisaService : AccessibilityService() {
             },
             alRevisarCompleto = { revisarTextoCompleto() },
         )
+        Interruptor.instancia = java.lang.ref.WeakReference(this)
         Log.i(TAG, "Servicio conectado")
+    }
+
+    /** Se apaga del todo (sale de la lista de Accesibilidad); se vuelve a encender con el botón rápido. */
+    fun apagarse() {
+        olvidar()
+        Interruptor.instancia = null
+        disableSelf()
     }
 
     override fun onAccessibilityEvent(e: AccessibilityEvent) {
@@ -66,6 +74,16 @@ class SacerdotisaService : AccessibilityService() {
         val pkg = e.packageName?.toString() ?: return
         when (e.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                // Se abrió una app de banco de la lista: apagarse para que el banco no nos detecte.
+                if (ajustes.apagarConBancos && pkg in ajustes.protegidas) {
+                    Log.i(TAG, "App protegida ($pkg): la burbuja se apaga")
+                    val app = applicationContext
+                    principal.post {
+                        android.widget.Toast.makeText(app, "La Sacerdotisa se apagó para ${nombreDeApp(pkg)}. Enciéndela con el botón rápido.", android.widget.Toast.LENGTH_LONG).show()
+                    }
+                    apagarse()
+                    return
+                }
                 // Cambió de app o de pantalla: si no es el teclado, se esconde hasta que vuelvas a escribir.
                 if (pkg != paquete && pkg != packageName && !esTeclado(pkg)) olvidar()
             }
@@ -254,7 +272,13 @@ class SacerdotisaService : AccessibilityService() {
         if (::burbuja.isInitialized) burbuja.ocultar()
     }
 
+    override fun onUnbind(intent: android.content.Intent?): Boolean {
+        if (Interruptor.instancia?.get() === this) Interruptor.instancia = null
+        return super.onUnbind(intent)
+    }
+
     override fun onDestroy() {
+        if (Interruptor.instancia?.get() === this) Interruptor.instancia = null
         principal.removeCallbacksAndMessages(null)
         if (::burbuja.isInitialized) burbuja.ocultar()
         trabajo.shutdownNow()

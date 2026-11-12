@@ -1,7 +1,6 @@
 package com.davidsant7e.sacerdotisa.ui
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -25,7 +24,7 @@ import com.davidsant7e.sacerdotisa.Boveda
 import com.davidsant7e.sacerdotisa.Motor
 import com.davidsant7e.sacerdotisa.R
 import com.davidsant7e.sacerdotisa.motor.Aviso
-import com.davidsant7e.sacerdotisa.servicio.SacerdotisaService
+import com.davidsant7e.sacerdotisa.servicio.Interruptor
 import java.util.concurrent.Executors
 
 /** Pantalla principal: activar la burbuja, ajustes y una caja para probar. */
@@ -38,6 +37,8 @@ class MainActivity : Activity() {
     private lateinit var resultados: LinearLayout
     private lateinit var prueba: EditText
     private lateinit var estadoGemini: TextView
+    private lateinit var protegidas: LinearLayout
+    private lateinit var estadoBancos: TextView
     private var avisosPrueba: List<Aviso> = emptyList()
     private val principal = Handler(Looper.getMainLooper())
     private val trabajo = Executors.newSingleThreadExecutor()
@@ -82,6 +83,30 @@ class MainActivity : Activity() {
                 "Permitir ajustes restringidos, y vuelve a intentarlo.",
             13f, Vistas.CREMA), c, arriba = 8))
         col.addView(interruptor("Mostrar la burbuja", ajustes.burbuja) { ajustes.burbuja = it })
+
+        // Apps de bancos
+        col.addView(seccion("Apps de bancos"))
+        col.addView(Vistas.margen(Vistas.texto(c,
+            "Muchos bancos bloquean el ingreso (o piden desinstalar) si hay un servicio de accesibilidad encendido que no conocen. " +
+                "No hace falta desinstalar La Sacerdotisa: basta con APAGARLA mientras usas el banco.\n\n" +
+                "• Agrega aquí tus apps de bancos: al abrirlas, la burbuja se apaga sola.\n" +
+                "• Botón rápido: baja la cortina de arriba → ✎ editar → arrastra «La Sacerdotisa». Con él la apagas antes de abrir el banco y la vuelves a encender después.\n" +
+                "• Si el banco sigue quejándose, apágala con el botón rápido ANTES de abrirlo (algunos revisan apenas arrancan).",
+            13f, Vistas.CREMA), c, arriba = 4))
+        col.addView(interruptor("Apagarse sola al abrir estas apps", ajustes.apagarConBancos) { ajustes.apagarConBancos = it })
+        protegidas = Vistas.columna(c)
+        col.addView(protegidas)
+        val filaBancos = Vistas.fila(c)
+        filaBancos.addView(Vistas.boton(c, "Agregar apps", true) { elegirBancos() })
+        filaBancos.addView(View(c), LinearLayout.LayoutParams(Vistas.dp(c, 10), 1))
+        filaBancos.addView(Vistas.boton(c, "Apagar ahora", false) {
+            if (!Interruptor.apagar(c)) Toast.makeText(c, "Ya está apagada.", Toast.LENGTH_SHORT).show()
+            principal.postDelayed({ refrescar() }, 600)
+        })
+        col.addView(Vistas.margen(filaBancos, c, arriba = 8))
+        estadoBancos = Vistas.texto(c, "", 13f, Vistas.CREMA)
+        estadoBancos.setTextIsSelectable(true)
+        col.addView(Vistas.margen(estadoBancos, c, arriba = 10))
 
         // 2. Qué revisar
         col.addView(seccion("2. Qué revisar"))
@@ -180,11 +205,16 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        refrescar()
+    }
+
+    private fun refrescar() {
         val activo = servicioActivo()
         estado.text = if (activo) "✓ La burbuja está activa." else "La burbuja está apagada: actívala en Accesibilidad."
         estado.setTextColor(if (activo) Vistas.DURAZNO else Vistas.BLANCO)
         botonActivar.visibility = if (activo) View.GONE else View.VISIBLE
         pintarExcluidas()
+        pintarProtegidas()
     }
 
     override fun onDestroy() {
@@ -192,10 +222,51 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    private fun servicioActivo(): Boolean {
-        val lista = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
-        val yo = ComponentName(this, SacerdotisaService::class.java)
-        return lista.split(':').any { ComponentName.unflattenFromString(it) == yo }
+    private fun servicioActivo(): Boolean = Interruptor.activo(this)
+
+    private fun nombreDe(pkg: String): String =
+        runCatching { packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString() }.getOrDefault(pkg)
+
+    private fun pintarProtegidas() {
+        protegidas.removeAllViews()
+        val lista = ajustes.protegidas
+        if (lista.isEmpty()) {
+            protegidas.addView(Vistas.margen(Vistas.texto(this, "Ninguna todavía.", 14f, Vistas.BLANCO), this, arriba = 6))
+        }
+        for (pkg in lista.sortedBy { nombreDe(it).lowercase() }) {
+            val f = Vistas.fila(this)
+            f.addView(Vistas.texto(this, nombreDe(pkg), 15f), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            f.addView(Vistas.boton(this, "Quitar", false) { ajustes.protegidas = ajustes.protegidas - pkg; pintarProtegidas() })
+            protegidas.addView(Vistas.margen(f, this, arriba = 6))
+        }
+        estadoBancos.text = if (Interruptor.puedeEncender(this)) {
+            "✓ El botón rápido puede encenderla y apagarla sin entrar a Ajustes."
+        } else {
+            "El botón rápido la apaga, pero para encenderla te lleva a Accesibilidad. Para que también la encienda, " +
+                "da este permiso una vez desde el PC (con el celular conectado):\n" +
+                "adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS"
+        }
+    }
+
+    /** Lista de apps con ícono; las que parecen de bancos o pagos van primero. */
+    private fun elegirBancos() {
+        val pm = packageManager
+        val lanzables = pm.queryIntentActivities(
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0,
+        ).map { it.activityInfo.packageName }.distinct().filter { it != packageName }
+        val apps = lanzables.map { it to nombreDe(it) }
+            .sortedWith(compareBy({ !Interruptor.pareceBanco(it.second, it.first) }, { it.second.lowercase() }))
+        val nombres = apps.map { (pkg, nombre) -> if (Interruptor.pareceBanco(nombre, pkg)) "🏦 $nombre" else nombre }.toTypedArray()
+        val marcadas = BooleanArray(apps.size) { apps[it].first in ajustes.protegidas }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Apps de bancos y pagos")
+            .setMultiChoiceItems(nombres, marcadas) { _, i, v -> marcadas[i] = v }
+            .setPositiveButton("Guardar") { _, _ ->
+                ajustes.protegidas = apps.filterIndexed { i, _ -> marcadas[i] }.map { it.first }.toSet()
+                pintarProtegidas()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun pintarExcluidas() {
