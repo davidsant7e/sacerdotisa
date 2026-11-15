@@ -14,6 +14,7 @@ import com.davidsant7e.sacerdotisa.Boveda
 import com.davidsant7e.sacerdotisa.Motor
 import com.davidsant7e.sacerdotisa.motor.Aviso
 import com.davidsant7e.sacerdotisa.motor.LanguageTool
+import com.davidsant7e.sacerdotisa.registro.Registro
 import java.util.concurrent.Executors
 
 /**
@@ -60,10 +61,12 @@ class SacerdotisaService : AccessibilityService() {
         )
         Interruptor.instancia = java.lang.ref.WeakReference(this)
         Log.i(TAG, "Servicio conectado")
+        Registro.evento("SERVICIO", "conectado")
     }
 
     /** Se apaga del todo (sale de la lista de Accesibilidad); se vuelve a encender con el botón rápido. */
     fun apagarse() {
+        Registro.evento("SERVICIO", "apagado")
         olvidar()
         Interruptor.instancia = null
         disableSelf()
@@ -77,6 +80,7 @@ class SacerdotisaService : AccessibilityService() {
                 // Se abrió una app de banco de la lista: apagarse para que el banco no nos detecte.
                 if (ajustes.apagarConBancos && pkg in ajustes.protegidas) {
                     Log.i(TAG, "App protegida ($pkg): la burbuja se apaga")
+                    Registro.evento("BANCO", "detectado", "app" to pkg)
                     val app = applicationContext
                     principal.post {
                         android.widget.Toast.makeText(app, "La Sacerdotisa se apagó para ${nombreDeApp(pkg)}. Enciéndela con el botón rápido.", android.widget.Toast.LENGTH_LONG).show()
@@ -195,6 +199,7 @@ class SacerdotisaService : AccessibilityService() {
                 null
             } catch (x: Exception) {
                 Log.i(TAG, "LanguageTool no respondió: ${x.message}")
+                Registro.error("LANGUAGETOOL", x)
                 null
             } ?: return@execute
             principal.post {
@@ -237,6 +242,7 @@ class SacerdotisaService : AccessibilityService() {
         }
         if (!n.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
             Log.i(TAG, "Esta app no deja reemplazar el texto")
+            Registro.evento("CORREGIR", "rechazado", "app" to n.packageName)
             return
         }
         val sel = Bundle().apply {
@@ -278,6 +284,7 @@ class SacerdotisaService : AccessibilityService() {
     }
 
     override fun onDestroy() {
+        Registro.evento("SERVICIO", "detenido")
         if (Interruptor.instancia?.get() === this) Interruptor.instancia = null
         principal.removeCallbacksAndMessages(null)
         if (::burbuja.isInitialized) burbuja.ocultar()
